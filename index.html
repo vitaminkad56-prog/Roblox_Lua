@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Практикум: Roblox Studio & Lua</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    body {
+      background: #f0f4f8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .quiz-card {
+      background: #ffffff;
+      width: 100%;
+      max-width: 860px;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      padding: 32px;
+      position: relative;
+    }
+    .start-screen {
+      text-align: center;
+      padding: 10px 0;
+    }
+    .start-title {
+      font-size: 26px;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 20px;
+    }
+    .rules-card {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 20px 24px;
+      text-align: left;
+      margin-bottom: 28px;
+    }
+    .rules-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 12px;
+    }
+    .rules-list {
+      list-style-type: decimal;
+      padding-left: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .rules-list li {
+      font-size: 15px;
+      color: #334155;
+      line-height: 1.5;
+    }
+    .btn-primary {
+      background: #0284c7;
+      color: #ffffff;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 32px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+    }
+    .btn-primary:hover {
+      background: #0369a1;
+    }
+    .btn-primary:active {
+      transform: scale(0.98);
+    }
+    .progress-bar-container {
+      width: 100%;
+      height: 6px;
+      background: #e2e8f0;
+      border-radius: 3px;
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: #0284c7;
+      transition: width 0.3s ease;
+    }
+    .header-info {
+      display: flex;
+      justify-content: space-between;
+      color: #64748b;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .question-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 16px;
+      line-height: 1.4;
+    }
+
+    /* Стиль аккуратного редактора кода */
+    .code-editor-box {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 18px 22px;
+      margin-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .code-line {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 15px;
+      color: #0f172a;
+      min-height: 36px;
+    }
+    .code-text {
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 15px;
+      color: #0f172a;
+      white-space: pre;
+    }
+    .blank-input {
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 15px;
+      font-weight: 600;
+      padding: 5px 8px;
+      border: 2px solid #cbd5e1;
+      border-radius: 6px;
+      background: #ffffff;
+      color: #0f172a;
+      outline: none;
+      transition: border-color 0.2s, background-color 0.2s;
+    }
+    .blank-input:focus {
+      border-color: #0284c7;
+    }
+    .blank-input.correct {
+      border-color: #22c55e !important;
+      background: #dcfce7 !important;
+      color: #15803d !important;
+    }
+    .blank-input.wrong {
+      border-color: #ef4444 !important;
+      background: #fee2e2 !important;
+      color: #b91c1c !important;
+    }
+    .select-input {
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 15px;
+      font-weight: 700;
+      padding: 5px 8px;
+      border: 2px solid #cbd5e1;
+      border-radius: 6px;
+      background: #ffffff;
+      color: #0f172a;
+      outline: none;
+      cursor: pointer;
+      transition: border-color 0.2s, background-color 0.2s;
+    }
+    .select-input:focus {
+      border-color: #0284c7;
+    }
+    .select-input.correct {
+      border-color: #22c55e !important;
+      background: #dcfce7 !important;
+      color: #15803d !important;
+    }
+    .select-input.wrong {
+      border-color: #ef4444 !important;
+      background: #fee2e2 !important;
+      color: #b91c1c !important;
+    }
+    .line-comment {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-size: 13.5px;
+      color: #64748b;
+      margin-left: 8px;
+    }
+    .buttons-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 10px;
+    }
+    .btn-verify {
+      background: #0284c7;
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 24px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-verify:hover {
+      background: #0369a1;
+    }
+    .btn-skip {
+      background: #ffffff;
+      color: #64748b;
+      border: 2px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 8px 20px;
+      font-size: 14.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s, color 0.2s;
+    }
+    .btn-skip:hover {
+      background: #f1f5f9;
+      border-color: #94a3b8;
+      color: #334155;
+    }
+    .feedback-box {
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-size: 15px;
+      margin-bottom: 20px;
+      display: none;
+      line-height: 1.5;
+      font-weight: 600;
+    }
+    .feedback-box.correct {
+      background: #f0fdf4;
+      border-left: 5px solid #22c55e;
+      color: #166534;
+    }
+    .feedback-box.wrong {
+      background: #fef2f2;
+      border-left: 5px solid #ef4444;
+      color: #991b1b;
+    }
+    .feedback-box.skipped {
+      background: #fffbeb;
+      border-left: 5px solid #f59e0b;
+      color: #92400e;
+    }
+    .action-container {
+      display: none;
+      justify-content: flex-end;
+      margin-top: 20px;
+    }
+    .btn-continue {
+      background: #0284c7;
+      color: #ffffff;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 36px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
+      transition: background 0.2s, transform 0.1s;
+    }
+    .btn-continue:hover {
+      background: #0369a1;
+    }
+    .result-screen {
+      display: none;
+      text-align: center;
+      padding: 10px 0;
+    }
+    .result-score {
+      font-size: 44px;
+      font-weight: 800;
+      color: #1e293b;
+      margin: 12px 0;
+    }
+    .result-msg {
+      font-size: 15px;
+      color: #475569;
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+    .results-badges {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      margin: 16px 0 28px 0;
+    }
+    .badge-item {
+      width: 44px;
+      height: 44px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+    }
+    .badge-item.correct {
+      background: #dcfce7;
+      color: #15803d;
+      border: 2px solid #22c55e;
+    }
+    .badge-item.wrong {
+      background: #fee2e2;
+      color: #b91c1c;
+      border: 2px solid #ef4444;
+    }
+    .badge-item.unanswered {
+      background: #f1f5f9;
+      color: #64748b;
+      border: 2px solid #cbd5e1;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="quiz-card">
+    <div class="start-screen" id="start-screen">
+      <h1 class="start-title">Roblox Studio • Lua: Задания из урока</h1>
+      <div class="rules-card">
+        <div class="rules-title">Инструкция к практикуму:</div>
+        <ol class="rules-list">
+          <li><strong>Самостоятельный ввод:</strong> вписывай пропущенные команды, свойства, знаки или числа прямо в строчки кода.</li>
+          <li><strong>Только «Верно» или «Неверно»:</strong> готовые подсказки и решения не показываются — думай сам и находи ошибки самостоятельно!</li>
+          <li><strong>Кнопка «Пропустить»:</strong> если задание совсем не получается, можно нажать пропустить и перейти дальше.</li>
+          <li><strong>Баллы:</strong> 1 балл засчитывается только если задание решено верно с первой попытки без пропуска.</li>
+        </ol>
+      </div>
+      <button class="btn-primary" onclick="startQuiz()">Начать практикум</button>
+    </div>
+
+    <div id="quiz-content" style="display: none;">
+      <div class="progress-bar-container">
+        <div class="progress-bar" id="progress"></div>
+      </div>
+      <div class="header-info">
+        <span id="question-number">Задание 1 из 17</span>
+        <span id="score-counter">Баллы: 0</span>
+      </div>
+      <div class="question-title" id="question-text"></div>
+
+      <div class="code-editor-box" id="editor-container"></div>
+      <div class="buttons-row" id="buttons-row">
+        <button class="btn-verify" id="btn-verify" onclick="checkAnswers()">Проверить ответ</button>
+        <button class="btn-skip" id="btn-skip" onclick="skipQuestion()">Пропустить ➔</button>
+      </div>
+      
+      <div class="feedback-box" id="feedback"></div>
+
+      <div class="action-container" id="action-container">
+        <button class="btn-continue" id="continue-btn" onclick="proceedNext()">Продолжить</button>
+      </div>
+    </div>
+
+    <div class="result-screen" id="result-screen">
+      <h2>Практикум завершён!</h2>
+      <div class="result-score" id="final-score">0 / 17</div>
+      <p class="result-msg" id="final-message"></p>
+      
+      <div style="font-weight: 600; color: #334155; margin-bottom: 8px;">Результаты по заданиям:</div>
+      <div class="results-badges" id="results-badges"></div>
+
+      <button class="btn-primary" onclick="restartQuiz()">Пройти ещё раз</button>
+    </div>
+  </div>
+
+  <script>
+    // Все задания и детективные дела СТРОГО соответствуют слайдам презентации
+    const stages = [
+      // 1. Слайд 4: ПРАКТИКА • ЗАДАНИЕ 1 (5 коробок)
+      {
+        text: "Слайд 4. Практика (Задание 1). Создай 5 коробок-переменных:",
+        lines: [
+          {
+            items: [
+              { type: "text", val: "1. local myName = " },
+              { type: "input", width: "160px", answers: ['"Артём"', '"Игрок"', '"Степан"', '"Максим"', '"Таня"', '"Player"'], acceptAnyString: true },
+              { type: "comment", val: "-- имя в кавычках" }
+            ]
+          },
+          {
+            items: [
+              { type: "text", val: "2. local coins = " },
+              { type: "input", width: "90px", answers: ["100"] },
+              { type: "comment", val: "-- стартовые 100 монет" }
+            ]
+          },
+          {
+            items: [
+              { type: "text", val: "3. local potion = script." },
+              { type: "input", width: "110px", answers: ["parent"] },
+              { type: "comment", val: "-- родитель скрипта (1 шаг вверх)" }
+            ]
+          },
+          // 4. самостоятельное написание строки
+          {
+            items: [
+              { type: "text", val: "4. " },
+              { type: "input", width: "140px", answers: ["local speed", "local Speed"] },
+              { type: "input", width: "45px", answers: ["="] },
+              { type: "input", width: "80px", answers: ["30"] },
+              { type: "comment", val: "-- коробка speed со значением скорости 30" }
+            ]
+          },
+          // 5. самостоятельное написание строки
+          {
+            items: [
+              { type: "text", val: "5. " },
+              { type: "input", width: "140px", answers: ["local model", "local Model"] },
+              { type: "input", width: "45px", answers: ["="] },
+              { type: "input", width: "230px", answers: ["script.parent.parent", "script.Parent.Parent"] },
+              { type: "comment", val: "-- коробка model со всей моделью целиком (на 2 шага выше)" }
+            ]
+          }
+        ]
+      },
+
+      // 2. Слайд 5: ОШИБКА В КОДЕ • ЗАГАДКА (my speed)
+      {
+        text: "Слайд 5. Ошибка в коде (Загадка). Компьютер выдал ошибку Expected '='. Исправь имя переменной, чтобы оно было одним словом:",
+        lines: [
+          {
+            items: [
+              { type: "text", val: "local " },
+              { type: "input", width: "150px", answers: ["myspeed", "my_speed"] },
+              { type: "text", val: " = 25" },
+              { type: "comment", val: "-- напиши правильное имя переменной вместо 'my speed'" }
+            ]
+          }
+        ]
+      },
+
+      // 3. Слайд 7: ОШИБКА В КОДЕ • ЗАГАДКА (Таня без кавычек)
+      {
+        text: "Слайд 7. Ошибка в коде (Загадка). Компьютер выдал ошибку Unknown global 'Таня'. Запиши имя героя правильно:",
+        lines: [
+          {
+            items: [
+              { type: "text", val: "local heroName = " },
+              { type: "input", width: "140px", answers: ['"таня"', "'таня'", '"герой"', "'герой'"], acceptAnyString: true },
+              { type: "comment", val: "-- во что обязательно оборачивается любой текст?" }
+            ]
+          }
+        ]
+      },
+
+      // 4. Слайд 10: ПРАКТИКА • ЗАДАНИЕ 2 (Блиц: точка или двоеточие)
+      {
+        text: "Слайд 10. Практика (Задание 2). Поставь верный знак: точку (.) или двоеточие (:):",
+        lines: [
+          {
+            items: [
+              { type: "text", val: "1. part" },
+              { type: "select", options: [".", ":"], answers: ["."] },
+              { type: "text", val: "Parent" },
+              { type: "comment", val: "-- заглядываем внутрь детали, ищем родителя" }
+            ]
+          },
+          {
+            items: [
+              { type: "text", val: "2. part" },
+              { type: "select", options: [".", ":"], answers: [":"] },
+              { type: "text", val: "Destroy()" },
+              { type: "comment", val: "-- отдаём команду детали удалиться" }
+            ]
+          },
+          {
+            items: [
+              { type: "text", val: "3. humanoid" },
+              { type: "select", options: [".", ":"], answers: ["."] },
+              { type: "text", val: "WalkSpeed" },
+              { type: "comment", val: "-- проверяем или меняем скорость" }
+            ]
+          },
+          {
+            items: [
+              { type: "text", val: "4. game" },
+              { type: "select", options: [".", ":"], answers: [":"] },
+              { type: "text", val: 'GetService("Lighting")' },
+              { type: "comment", val: "-- командуем игре найти службу" }
+            ]
+          },
+          {
+            items: [
+              { type: "text", val: "5. part" },
+              { type: "select", options: [".", ":"], answers: ["."] },
+              { type: "text", val: "Touched" },
+              { type: "comment", val: "-- находим датчик удара у детали" }
+            ]
+          }
+        ]
+      },
+
+      // 5. Слайд 11: ОШИБКА В КОДЕ • ЗАГАДКА (part:Destroy без скобок)
+      {
+        text: "Слайд 11. Ошибка в коде (Загадка). Двоеточие поставили, но деталь не исчезла. Что обязательно ставится после названия команды, чтобы она запустилась?",
+        lines: [
+          {
+            items: [
+              { type: "text", val: "local part = script.Parent" }
+            ]
+          },
+          {
+            items: [
+              { type: "text", val: "part.ClickDetector.MouseClick:Connect(function()" }
+            ]
+          },
+          {
+            indent: "28px",
+            items: [
+              { type: "text", val: "part:Destroy" },
+              { type: "input", width: "65px", answers: ["()"] },
+              { type: "comment", val: "-- допиши запуск команды" }
+            ]
+          },
+          {
+            items: [
+              { type: "text", val: "end)" }
+            ]
+          }
+        ]
+      },
+
+      // 6. Слайд 14: ПРАКТИКА • ЗАДАНИЕ 3 (Конструкция дверного звонка)
+      {
+        text: "Слайд 14. Практика (Задание 3). Заполни пропуски в шаблоне дверного звонка:",
+        lines: [
+          {
+            items: [
+              { type: "text", val: "part.Touched:Connect(function()" }
+            ]
+          },
+          {
+            indent: "28px",
+            items: [
+              { type: "text", val: "part:" },
+              { type: "input", width: "120px", answers: ["destroy()"] },
+              { type: "comment", val: "-- команда удаления детали" }
+            ]
+          },
+          {
+            items: [
+              { type: "input", width: "90px", answers: ["end)"] },
+              { type: "comment", val: "-- закрытие конструкции" }
+            ]
+          }
+        ]
+      },
+
+      // 7. Слайд 16: ОШИБКА В КОДЕ • ЗАГАДКА (завис при запуске цикла)
+      {
+        text: "Слайд 16. Ошибка в коде (Загадка). Roblox намертво завис. Какую строчку забыли положить внутрь вечного цикла?",
+        lines: [
+          {
+            items: [
+              { type: "text", val: 'local Lighting = game:GetService("Lighting")' }
+            ]
+          },
+          {
+            items: [
+              { type: "text", val: "while true do" }
+            ]
+          },
+          {
+            indent: "28px",
+            items: [
+              { type: "text", val: "Lighting.ClockTime = Lighting.ClockTime + 0.03" }
+            ]
+          },
+          {
+            indent: "28px",
+            items: [
+              { type: "input", width: "180px", answers: ["task.wait(0.1)", "task.wait(1)", "task.wait()", "task.wait(0.05)"] },
+              { type: "comment", val: "-- обязательная передышка" }
+            ]
+          },
+          {
+            items: [
+              { type: "text", val: "end" }
+            ]
+          }
+        ]
+      },
+
+      // 8. Слайд 20: ПРАКТИКА • ЗАДАНИЕ 2 (Начисление очков)
+      {
+        text: "Слайд 20. Практика (Задание 2). В папке workspace лежит счётчик Coins. Напиши прибавление сразу +5 монет при сборе:",
+        lines: [
+          {
+            items: [
+              { type: "text", val: "workspace." },
+              { type: "input", width: "220px", answers: ["coins.value += 5", "coins.value = coins.value + 5"] },
+              { type: "comment", val: "-- заполни по шаблону workspace.??? += ???" }
+            ]
+          }
+        ]
+      },
+
+      // 9. Слайд 24: ПРАКТИКА • ЗАДАНИЕ 4 (Супер-прыжок у робота)
+      {
+        text: "Слайд 24. Практика (Задание 4). Напиши строчку, которая установит высоту прыжка (JumpHeight) равной 50:",
+        lines: [
+          {
+            items: [
+              { type: "text", val: "local humanoid = hit.Parent.Humanoid" }
+            ]
+          },
+          {
+            items: [
+              { type: "text", val: "humanoid." },
+              { type: "input", width: "170px", answers: ["jumpheight = 50", "jumpheight=50"] },
+              { type: "comment", val: "-- помни про заглавные буквы" }
+            ]
+          }
+        ]
+      },
+
+      // 10. Слайд 26: ПРАКТИКА • ЗАДАНИЕ 5 (Собери рецепт зелья)
+      {
+        text: "Слайд 26. Практика (Задание 5). Заполни пропуски в рецепте зелья (скорости до 45 на 5 сек, затем возврат 16):",
+        lines: [
+          {
+            items: [
+              { type: "text", val: "local part = script.Parent" }
+            ]
+          },
+          {
+            items: [
+              { type: "text", val: "part.Touched:Connect(function(hit)" }
+            ]
+          },
+          {
+            indent: "28px",
+            items: [
+              { type: "text", val: "local humanoid = hit.Parent.Humanoid" }
+            ]
+          },
+          {
+            indent: "28px",
+            items: [
+              { type: "text", val: "humanoid." },
+              { type: "input", width: "150px", answers: ["walkspeed = 45", "walkspeed=45"] },
+              { type: "comment", val: "-- 1. Включи скорость 45" }
+            ]
+          },
+          {
+            indent: "28px",
+            items: [
+              { type: "text", val: "part.Parent:" },
+              { type: "input", width: "120px", answers: ["destroy()"] },
+              { type: "comment", val: "-- 2. Удали предмет" }
+            ]
+          },
+          {
+            indent: "28px",
+            items: [
+              { type: "text", val: "task.wait(" },
+              { type: "input", width: "50px", answers: ["5"] },
+              { type: "text", val: ")" },
+              { type: "comment", val: "-- таймер 5 секунд" }
+            ]
+          },
+          {
+            indent: "28px",
+            items: [
+              { type: "text", val: "humanoid." },
+              { type: "input", width: "150px", answers: ["walkspeed = 16", "walkspeed=16"] },
+              { type: "comment", val: "-- 3. Верни обычную скорость 16" }
+            ]
+          },
+          {
+            items: [
+              { type: "text", val: "end)" }
+            ]
+          }
+        ]
+      },
+
+      // 11. Слайд 27: ДЕТЕКТИВ КОДА • ДЕЛО №1 (Регистр walkspeed)
+      {
+        text: "Слайд 27. Детектив кода (Дело №1). Персонаж не бежит быстрее. В чём ошибка в строке скорости?",
+        lines: [
+          {
+            items: [
+              { type: "text", val: "humanoid." },
+              { type: "input", width: "140px", answers: ["walkspeed"] },
+              { type: "text", val: " = 40" },
+              { type: "comment", val: "-- напиши правильное имя свойства" }
+            ]
+          }
+        ]
+      },
+
+      // 12. Слайд 29: ДЕТЕКТИВ КОДА • ДЕЛО №2 (gear.Destroy() -> gear:Destroy())
+      {
+        text: "Слайд 29. Детектив кода (Дело №2). Предмет не исчезает при клике. Какой знак перепутан перед Destroy?",
+        lines: [
+          {
+            items: [
+              { type: "text", val: "gear" },
+              { type: "select", options: [".", ":"], answers: [":"] },
+              { type: "text", val: "Destroy()" },
+              { type: "comment", val: "-- приказ-действие выполняется через..." }
+            ]
+          }
+        ]
+      },
+
+      // 13. Слайд 31: ДЕТЕКТИВ КОДА • ДЕЛО №3 (Красная линия в конце)
+      {
+        text: "Слайд 31. Детектив кода (Дело №3). Скрипт подчёркивает последнюю строку. Чего не хватает в самом конце после слова end?",
+        lines: [
+          {
+            items: [
+              { type: "text", val: "pad.Touched:Connect(function(hit)" }
+            ]
+          },
+          {
+            indent: "28px",
+            items: [
+              { type: "text", val: "local humanoid = hit.Parent.Humanoid" }
+            ]
+          },
+          {
+            indent: "28px",
+            items: [
+              { type: "text", val: "humanoid.JumpHeight = 60" }
+            ]
+          },
+          {
+            items: [
+              { type: "input", width: "80px", answers: ["end)"] },
+              { type: "comment", val: "-- как закрывается функция с Connect?" }
+            ]
+          }
+        ]
+      },
+
+      // 14. Слайд 33: ДЕТЕКТИВ КОДА • ДЕЛО №4 (Порядок строк wait)
+      {
+        text: "Слайд 33. Детектив кода (Дело №4). Зелье сразу выключается. Какую строчку нужно поставить МЕЖДУ включением 35 и возвратом 7.2?",
+        lines: [
+          {
+            items: [
+              { type: "text", val: "humanoid.JumpHeight = 35" }
+            ]
+          },
+          {
+            items: [
+              { type: "input", width: "170px", answers: ["task.wait(6)", "task.wait( 6 )"] },
+              { type: "comment", val: "-- таймер ожидания на 6 секунд" }
+            ]
+          },
+          {
+            items: [
+              { type: "text", val: "humanoid.JumpHeight = 7.2" }
+            ]
+          }
+        ]
+      },
+
+      // 15. Слайд 35: ДЕТЕКТИВ КОДА • ДЕЛО №5 (Забыли вернуть 16)
+      {
+        text: "Слайд 35. Детектив кода (Дело №5). Персонаж стал супергероем навсегда. Какую команду забыли написать после wait, чтобы вернуть обычную скорость 16?",
+        lines: [
+          {
+            items: [
+              { type: "text", val: "humanoid.WalkSpeed = 50" }
+            ]
+          },
+          {
+            items: [
+              { type: "text", val: "task.wait(6)" }
+            ]
+          },
+          {
+            items: [
+              { type: "input", width: "240px", answers: ["humanoid.walkspeed = 16", "humanoid.walkspeed=16"] },
+              { type: "comment", val: "-- верни стандартное значение скорости" }
+            ]
+          }
+        ]
+      },
+
+      // 16. Слайд 37: ДЕТЕКТИВ КОДА • ДЕЛО №6 (Удаление всей модели гриба)
+      {
+        text: "Слайд 37. Детектив кода (Дело №6). Шляпка исчезла, а ножка осталась. Допиши путь к родительской модели, чтобы удалить весь гриб целиком:",
+        lines: [
+          {
+            items: [
+              { type: "text", val: "script.Parent." },
+              { type: "input", width: "170px", answers: ["parent:destroy()", "parent:destroy ()"] },
+              { type: "comment", val: "-- поднимаемся ещё на 1 шаг выше шляпки и удаляем" }
+            ]
+          }
+        ]
+      },
+
+      // 17. Слайд 39: ДЕТЕКТИВ КОДА • ДЕЛО №7 (Защита FindFirstChild)
+      {
+        text: "Слайд 39. Детектив кода (Дело №7). На батут упал кубик, и скрипт выдал ошибку nil with 'Jump'. Напиши команду проверки моторчика Humanoid:",
+        lines: [
+          {
+            items: [
+              { type: "text", val: "pad.Touched:Connect(function(hit)" }
+            ]
+          },
+          {
+            indent: "28px",
+            items: [
+              { type: "text", val: "if hit.Parent:" },
+              { type: "input", width: "260px", answers: ['findfirstchild("humanoid")', "findfirstchild('humanoid')"] },
+              { type: "text", val: " then" }
+            ]
+          },
+          {
+            indent: "56px",
+            items: [
+              { type: "text", val: "hit.Parent.Humanoid.Jump = true" }
+            ]
+          },
+          {
+            indent: "28px",
+            items: [
+              { type: "text", val: "end" }
+            ]
+          },
+          {
+            items: [
+              { type: "text", val: "end)" }
+            ]
+          }
+        ]
+      }
+    ];
+
+    let currentQuestion = 0;
+    let userState = [];
+
+    function prepareQuestions() {
+      userState = stages.map(function() {
+        return {
+          solved: false,
+          attempts: 0,
+          firstTrySuccess: false,
+          skipped: false
+        };
+      });
+    }
+
+    function startQuiz() {
+      prepareQuestions();
+      document.getElementById('start-screen').style.display = 'none';
+      document.getElementById('quiz-content').style.display = 'block';
+      loadQuestion();
+    }
+
+    function loadQuestion() {
+      const q = stages[currentQuestion];
+      const state = userState[currentQuestion];
+
+      document.getElementById('question-number').innerText = "Задание " + (currentQuestion + 1) + " из " + stages.length;
+      
+      const totalScore = userState.reduce(function(acc, item) {
+        return acc + (item.firstTrySuccess ? 1 : 0);
+      }, 0);
+      document.getElementById('score-counter').innerText = "Баллы: " + totalScore;
+      document.getElementById('progress').style.width = ((currentQuestion / stages.length) * 100) + "%";
+
+      document.getElementById('question-text').innerText = q.text;
+
+      const container = document.getElementById('editor-container');
+      container.innerHTML = '';
+
+      let globalFieldIdx = 0;
+
+      // Строго построчный рендер без сбоев верстки
+      q.lines.forEach(function(l) {
+        const lineDiv = document.createElement('div');
+        lineDiv.className = 'code-line';
+        if (l.indent) {
+          lineDiv.style.paddingLeft = l.indent;
+        }
+
+        l.items.forEach(function(it) {
+          if (it.type === 'text') {
+            const span = document.createElement('span');
+            span.className = 'code-text';
+            span.innerText = it.val;
+            lineDiv.appendChild(span);
+          } else if (it.type === 'comment') {
+            const cSpan = document.createElement('span');
+            cSpan.className = 'line-comment';
+            cSpan.innerText = it.val;
+            lineDiv.appendChild(cSpan);
+          } else if (it.type === 'select') {
+            const sel = document.createElement('select');
+            sel.className = 'select-input';
+            sel.id = 'input-' + globalFieldIdx;
+            sel.dataset.fieldIndex = globalFieldIdx;
+            sel.innerHTML = '<option value="">?</option>' +
+                            it.options.map(function(opt) { return '<option value="' + opt + '">' + opt + '</option>'; }).join('');
+            lineDiv.appendChild(sel);
+            globalFieldIdx++;
+          } else if (it.type === 'input') {
+            const inp = document.createElement('input');
+            inp.type = 'text';
+            inp.className = 'blank-input';
+            inp.id = 'input-' + globalFieldIdx;
+            inp.dataset.fieldIndex = globalFieldIdx;
+            inp.style.width = it.width || '130px';
+            inp.placeholder = ''; // Полностью пустые поля, никаких подсказок!
+            inp.autocomplete = 'off';
+            inp.spellcheck = false;
+            lineDiv.appendChild(inp);
+            globalFieldIdx++;
+          }
+        });
+
+        container.appendChild(lineDiv);
+      });
+
+      const btnRow = document.getElementById('buttons-row');
+      const feedback = document.getElementById('feedback');
+      const actionContainer = document.getElementById('action-container');
+      const continueBtn = document.getElementById('continue-btn');
+
+      if (state.solved) {
+        btnRow.style.display = 'none';
+        for (let i = 0; i < globalFieldIdx; i++) {
+          const field = document.getElementById('input-' + i);
+          if (field) {
+            field.disabled = true;
+            field.classList.add('correct');
+          }
+        }
+
+        feedback.className = 'feedback-box correct';
+        feedback.style.display = 'block';
+        feedback.innerText = 'Верно!';
+
+        actionContainer.style.display = 'flex';
+        continueBtn.innerText = (currentQuestion === stages.length - 1) ? "Посмотреть итог" : "Продолжить";
+      } else if (state.skipped) {
+        btnRow.style.display = 'none';
+        for (let i = 0; i < globalFieldIdx; i++) {
+          const field = document.getElementById('input-' + i);
+          if (field) {
+            field.disabled = true;
+          }
+        }
+
+        feedback.className = 'feedback-box skipped';
+        feedback.style.display = 'block';
+        feedback.innerText = 'Задание пропущено.';
+
+        actionContainer.style.display = 'flex';
+        continueBtn.innerText = (currentQuestion === stages.length - 1) ? "Посмотреть итог" : "Продолжить";
+      } else {
+        btnRow.style.display = 'flex';
+        feedback.style.display = 'none';
+        feedback.className = 'feedback-box';
+        feedback.innerHTML = '';
+        actionContainer.style.display = 'none';
+      }
+    }
+
+    function checkAnswers() {
+      const q = stages[currentQuestion];
+      const state = userState[currentQuestion];
+      if (state.solved || state.skipped) return;
+
+      let allFilled = true;
+      let allCorrect = true;
+      let globalFieldIdx = 0;
+
+      q.lines.forEach(function(l) {
+        l.items.forEach(function(it) {
+          if (it.type === 'input' || it.type === 'select') {
+            const field = document.getElementById('input-' + globalFieldIdx);
+            const val = field.value.trim();
+
+            if (!val) {
+              allFilled = false;
+            }
+
+            const cleanVal = val.toLowerCase().replace(/\\s+/g, ' ');
+            const cleanValNoSpaces = val.toLowerCase().replace(/\\s+/g, '');
+
+            let isMatch = false;
+            if (it.acceptAnyString) {
+              if ((val.startsWith('"') && val.endsWith('"') && val.length >= 3) ||
+                  (val.startsWith("'") && val.endsWith("'") && val.length >= 3)) {
+                isMatch = true;
+              }
+            }
+
+            if (!isMatch) {
+              isMatch = it.answers.some(function(ans) {
+                const cleanAns = ans.toLowerCase().replace(/\\s+/g, ' ');
+                const cleanAnsNoSpaces = ans.toLowerCase().replace(/\\s+/g, '');
+                return cleanVal === cleanAns || cleanValNoSpaces === cleanAnsNoSpaces;
+              });
+            }
+
+            if (isMatch) {
+              field.className = (it.type === 'select' ? 'select-input' : 'blank-input') + ' correct';
+            } else {
+              field.className = (it.type === 'select' ? 'select-input' : 'blank-input') + ' wrong';
+              allCorrect = false;
+            }
+
+            globalFieldIdx++;
+          }
+        });
+      });
+
+      const feedback = document.getElementById('feedback');
+      const actionContainer = document.getElementById('action-container');
+      const continueBtn = document.getElementById('continue-btn');
+
+      if (!allFilled) {
+        feedback.className = 'feedback-box wrong';
+        feedback.style.display = 'block';
+        feedback.innerText = 'Неверно. Заполни все поля перед проверкой!';
+        return;
+      }
+
+      if (allCorrect) {
+        state.solved = true;
+        if (state.attempts === 0) {
+          state.firstTrySuccess = true;
+        }
+
+        const btnRow = document.getElementById('buttons-row');
+        if (btnRow) btnRow.style.display = 'none';
+
+        let disableIdx = 0;
+        q.lines.forEach(function(l) {
+          l.items.forEach(function(it) {
+            if (it.type === 'input' || it.type === 'select') {
+              const field = document.getElementById('input-' + disableIdx);
+              if (field) field.disabled = true;
+              disableIdx++;
+            }
+          });
+        });
+
+        const totalScore = userState.reduce(function(acc, item) {
+          return acc + (item.firstTrySuccess ? 1 : 0);
+        }, 0);
+        document.getElementById('score-counter').innerText = "Баллы: " + totalScore;
+
+        feedback.className = 'feedback-box correct';
+        feedback.style.display = 'block';
+        feedback.innerText = 'Верно!';
+
+        actionContainer.style.display = 'flex';
+        continueBtn.innerText = (currentQuestion === stages.length - 1) ? "Посмотреть итог" : "Продолжить";
+      } else {
+        state.attempts++;
+        feedback.className = 'feedback-box wrong';
+        feedback.style.display = 'block';
+        feedback.innerText = 'Неверно.';
+      }
+    }
+
+    function skipQuestion() {
+      const q = stages[currentQuestion];
+      const state = userState[currentQuestion];
+      if (state.solved) return;
+
+      state.skipped = true;
+      state.firstTrySuccess = false;
+
+      const btnRow = document.getElementById('buttons-row');
+      if (btnRow) btnRow.style.display = 'none';
+
+      let disableIdx = 0;
+      q.lines.forEach(function(l) {
+        l.items.forEach(function(it) {
+          if (it.type === 'input' || it.type === 'select') {
+            const field = document.getElementById('input-' + disableIdx);
+            if (field) field.disabled = true;
+            disableIdx++;
+          }
+        });
+      });
+
+      const feedback = document.getElementById('feedback');
+      feedback.className = 'feedback-box skipped';
+      feedback.style.display = 'block';
+      feedback.innerText = 'Задание пропущено.';
+
+      const actionContainer = document.getElementById('action-container');
+      const continueBtn = document.getElementById('continue-btn');
+      actionContainer.style.display = 'flex';
+      continueBtn.innerText = (currentQuestion === stages.length - 1) ? "Посмотреть итог" : "Продолжить";
+    }
+
+    function proceedNext() {
+      if (currentQuestion < stages.length - 1) {
+        currentQuestion++;
+        loadQuestion();
+      } else {
+        showResults();
+      }
+    }
+
+    function showResults() {
+      document.getElementById('quiz-content').style.display = 'none';
+      const resultScreen = document.getElementById('result-screen');
+      resultScreen.style.display = 'block';
+      
+      const totalScore = userState.reduce(function(acc, item) {
+        return acc + (item.firstTrySuccess ? 1 : 0);
+      }, 0);
+
+      document.getElementById('final-score').innerText = totalScore + " / " + stages.length;
+      const msg = document.getElementById('final-message');
+      
+      if (totalScore === stages.length) {
+        msg.innerText = "Великолепно! Все задания из урока выполнены абсолютно точно с первой попытки!";
+      } else if (totalScore >= 12) {
+        msg.innerText = "Хороший результат! Большинство конструкций и синтаксических правил усвоены уверенно.";
+      } else {
+        msg.innerText = "Рекомендуется ещё раз повторить презентацию и пройти практикум заново.";
+      }
+
+      const badgesContainer = document.getElementById('results-badges');
+      badgesContainer.innerHTML = '';
+      for (let i = 0; i < userState.length; i++) {
+        const badge = document.createElement('div');
+        const st = userState[i];
+        let statusClass = 'unanswered';
+        if (st.solved) {
+          statusClass = st.firstTrySuccess ? 'correct' : 'wrong';
+        } else if (st.skipped) {
+          statusClass = 'wrong';
+        }
+        badge.className = 'badge-item ' + statusClass;
+        badge.innerText = '№' + (i + 1);
+        badgesContainer.appendChild(badge);
+      }
+    }
+
+    function restartQuiz() {
+      currentQuestion = 0;
+      document.getElementById('result-screen').style.display = 'none';
+      document.getElementById('start-screen').style.display = 'block';
+    }
+  </script>
+</body>
+</html>
